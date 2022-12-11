@@ -1,7 +1,7 @@
 class Walls {
   area = [];
   size = 0;
-  grid = { rows: 0, columns: 0 };
+  grid = { rows: 0, columns: 0, width: 0, height: 0 };
   strokeWeight = 1;
 
   constructor(grid, size) {

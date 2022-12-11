@@ -15,7 +15,7 @@ class Snake {
 
   failed = false;
 
-  grid = { rows: 0, columns: 0 };
+  grid = { rows: 0, columns: 0, width: 0, height: 0 };
 
   constructor(grid, size) {
     this.grid = grid;
@@ -25,7 +25,6 @@ class Snake {
     this.location.y = this.snap(this.grid.rows / 2 * this.size);
 
     this.moveHistory.push(createVector(this.location.x, this.location.y));
-    this.addSnack();
 
     if (this.size > 24) {
       this.strokeWeight = 2;
@@ -52,9 +51,25 @@ class Snake {
 
       if (!head) { return; }
 
-      // Define leading direction
+      // Side Touch
+      if (x < this.size * 1.5 || x > this.grid.width - this.size * 1.5) {
+        this.direction.x = x < this.size * 1.5 ? -1 : 1;
+        this.direction.y = 0;
+
+        return;
+      }
+
+      if (y < this.size * 1.5 || y > this.grid.height - this.size * 1.5) {
+        this.direction.x = 0;
+        this.direction.y = y < this.size * 1.5 ? -1 : 1;
+
+        return;
+      }
+
+      // In field touch
       const xWide = head.x - x;
       const yWide = head.y - y;
+
       if (abs(xWide) > abs(yWide)) {
         this.direction.x = xWide > 0 ? -1 : 1;
         this.direction.y = 0;
@@ -120,8 +135,8 @@ class Snake {
     const randomRow = round(random(1, this.grid.rows - 1));
     const randomColumn = round(random(1, this.grid.columns - 1));
 
-    this.snack.x = this.snap(randomColumn * this.size) - this.size / 2;
-    this.snack.y = this.snap(randomRow * this.size) - this.size / 2;
+    this.snack.x = this.snap(randomColumn * this.size) + this.size / 2;
+    this.snack.y = this.snap(randomRow * this.size) + this.size / 2;
 
     // Prevent appear in walls
     if (this.collisionArea

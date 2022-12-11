@@ -6,8 +6,12 @@ let walls = [];
 let objectSize = 16;
 let grid = {
   rows: 10,
-  columns: 10
+  columns: 10,
+  width: 0,
+  height: 0
 };
+
+let doubelTouchOnEnd = false;
 
 
 function setup() {
@@ -28,14 +32,17 @@ function setup() {
     }
   }
 
-
+  grid.width = windowWidth;
+  grid.height = windowHeight;
   grid.rows = round(windowHeight / objectSize);
   grid.columns = round(windowWidth / objectSize);
+
   background(40);
 
   walls = new Walls(grid, objectSize);
   snake = new Snake(grid, objectSize);
   snake.addCollisionArea(walls.area);
+  snake.addSnack();
 }
 
 function windowResized() {
@@ -46,6 +53,8 @@ function windowResized() {
 function doubleClicked() {
   if (snake.failed) {
     setup();
+    // prevent default
+    return false;
   }
 }
 
@@ -60,9 +69,19 @@ function mouseClicked() {
 function touchStarted() {
   if (!snake.failed) {
     snake.setDirection(mouseX, mouseY);
-    // prevent default
-    return false;
   }
+
+  if (snake.failed && doubelTouchOnEnd) {
+    setup();
+    doubelTouchOnEnd = false;
+  }
+
+  if (snake.failed) {
+    doubelTouchOnEnd = true;
+  }
+
+  // prevent default
+  return false;
 }
 
 function draw() {
