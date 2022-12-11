@@ -52,6 +52,16 @@ function doubleClicked() {
 function mouseClicked() {
   if (!snake.failed) {
     snake.setDirection(mouseX, mouseY);
+    // prevent default
+    return false;
+  }
+}
+
+function touchStarted() {
+  if (!snake.failed) {
+    snake.setDirection(mouseX, mouseY);
+    // prevent default
+    return false;
   }
 }
 
