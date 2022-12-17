@@ -84,6 +84,16 @@ function touchStarted() {
   return false;
 }
 
+function keyReleased(event) {
+  const { code } = event;
+
+  if (code) {
+    snake.setDirection(code);
+  }
+
+  return false;
+}
+
 function draw() {
   background(40);
   counter += deltaTime / (60 / gameSpeed);

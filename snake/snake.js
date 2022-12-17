@@ -12,6 +12,9 @@ class Snake {
 
   collisionArea = [];
   moveHistory = [];
+  states = ['right', 'down', 'left', 'up'];
+  state = 0;
+  nextState = 0;
 
   failed = false;
 
@@ -42,69 +45,123 @@ class Snake {
       }
     }
 
+    this.addDirectionIndicator();
+
     circle(this.snack.x, this.snack.y, this.size);
   }
 
-  setDirection(x = 0, y = 0) {
-    if (x && y) {
-      const head = this.moveHistory[this.snakeParts - 1];
+  addDirectionIndicator() {
+    const head = this.moveHistory[this.snakeParts - 1];
 
-      if (!head) { return; }
-
-      // Side Touch
-      if (x < this.size * 1.5 || x > this.grid.width - this.size * 1.5) {
-        this.direction.x = x < this.size * 1.5 ? -1 : 1;
-        this.direction.y = 0;
-
-        return;
-      }
-
-      if (y < this.size * 1.5 || y > this.grid.height - this.size * 1.5) {
-        this.direction.x = 0;
-        this.direction.y = y < this.size * 1.5 ? -1 : 1;
-
-        return;
-      }
-
-      // In field touch
-      const xWide = head.x - x;
-      const yWide = head.y - y;
-
-      if (abs(xWide) > abs(yWide)) {
-        this.direction.x = xWide > 0 ? -1 : 1;
-        this.direction.y = 0;
-      } else {
-        this.direction.x = 0;
-        this.direction.y = yWide > 0 ? -1 : 1;
-      }
+    if (this.direction.x > 0) {
+      triangle(
+        head.x,
+        head.y,
+        head.x,
+        head.y + this.size,
+        head.x + this.size,
+        head.y + this.size / 2
+      );
 
       return;
     }
 
-    if (keyIsDown(LEFT_ARROW)) {
-      this.direction.x = -1;
-      this.direction.y = 0;
+    if (this.direction.x < 0) {
+      triangle(
+        head.x + this.size,
+        head.y,
+        head.x,
+        head.y + this.size / 2,
+        head.x + this.size,
+        head.y + this.size
+      );
+
+      return;
     }
 
-    if (keyIsDown(RIGHT_ARROW)) {
-      this.direction.x = 1;
-      this.direction.y = 0;
+    if (this.direction.y > 0) {
+      triangle(
+        head.x,
+        head.y,
+        head.x + this.size,
+        head.y,
+        head.x + this.size / 2,
+        head.y + this.size
+      );
+
+      return;
     }
 
-    if (keyIsDown(UP_ARROW)) {
-      this.direction.x = 0;
-      this.direction.y = -1;
+    if (this.direction.y < 0) {
+      triangle(
+        head.x,
+        head.y + this.size,
+        head.x + this.size / 2,
+        head.y,
+        head.x + this.size,
+        head.y + this.size
+      );
+
+      return;
+    }
+  }
+
+  setDirection(keyCode) {
+
+    if (this.nextState !== this.state) {
+      return;
     }
 
-    if (keyIsDown(DOWN_ARROW)) {
-      this.direction.x = 0;
-      this.direction.y = 1;
+    const states = ['right', 'down', 'left', 'up'];
+
+    if (keyCode === 'ArrowLeft') {
+      this.nextState += 1;
+      this.nextState = this.nextState > (this.states.length - 1) ? 0 : this.nextState;
+    }
+
+    if (keyCode === 'ArrowRight') {
+      this.nextState -= 1;
+      this.nextState = this.nextState < 0 ? this.states.length - 1 : this.nextState;
+    }
+
+    switch (this.nextState) {
+      // To right
+      case 0:
+        this.direction.x = 1;
+        this.direction.y = 0;
+        break;
+
+      // To down
+      case 1:
+        this.direction.x = 0;
+        this.direction.y = 1;
+        break;
+
+      // To left
+      case 2:
+        this.direction.x = -1;
+        this.direction.y = 0;
+        break;
+
+      // To up
+      case 3:
+        this.direction.x = 0;
+        this.direction.y = -1;
+        break;
     }
   }
 
   update() {
+    this.state = this.nextState;
+
     this.moveX(this.direction.x);
     this.moveY(this.direction.y);
+
+
+    if (this.eat()) {
+      this.snakeParts++;
+      this.addSnack();
+    }
 
     this.moveHistory.push({
       x: this.location.x,
@@ -113,11 +170,6 @@ class Snake {
 
     if (this.moveHistory.length > this.snakeParts) {
       this.moveHistory.shift();
-    }
-
-    if (this.eat()) {
-      this.snakeParts++;
-      this.addSnack();
     }
 
     this.checkFailed();
