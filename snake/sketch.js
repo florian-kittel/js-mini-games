@@ -60,7 +60,8 @@ function doubleClicked() {
 
 function mouseClicked() {
   if (!snake.failed) {
-    snake.setDirection(mouseX, mouseY);
+    const direction = mouseX <= windowWidth / 2 ? 'ArrowLeft' : 'ArrowRight';
+    snake.setDirection(direction);
     // prevent default
     return false;
   }
@@ -68,7 +69,8 @@ function mouseClicked() {
 
 function touchStarted() {
   if (!snake.failed) {
-    snake.setDirection(mouseX, mouseY);
+    const direction = mouseX <= windowWidth / 2 ? 'ArrowLeft' : 'ArrowRight';
+    snake.setDirection(direction);
   }
 
   if (snake.failed && doubelTouchOnEnd) {
